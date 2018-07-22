@@ -25,6 +25,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Geocoder geocoder;
     private List<Address>addressList;
     private LocationRequest locationRequest;
+
+    private LatLng mylocation;
 
 
     TextToSpeech t1;
@@ -136,6 +139,8 @@ public String Destination;
                     ArrayList<String> result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     final String myText = result.get(0);
+
+
                     if (myText.equals("clear")||!request.equals("travel")) {
                         switch (myText) {
 
@@ -192,6 +197,8 @@ public String Destination;
                         }
 
 
+
+
                     }
                     else{
                         if(myText.equals("change")){
@@ -214,13 +221,19 @@ public String Destination;
                             }, 5000);
 
                         }
+
                     else if (destination.equals("")){
 
                             destination=myText;
                             t1.speak("Your Destination is "+destination, TextToSpeech.QUEUE_FLUSH, null);
+                            LatLng endloc=new LatLng(23.7568347,90.3800695);
+                            Route route=new Route(MainActivity.this,mylocation,endloc);
                         }
                         else{
                             t1.speak("Your Destination is "+destination, TextToSpeech.QUEUE_FLUSH, null);
+                            LatLng endloc=new LatLng(5.87,3.54);
+
+                            Route route=new Route(MainActivity.this,mylocation,endloc);
                         }
 
                     }
@@ -272,6 +285,7 @@ public String Destination;
             Address=addressList.get(0).getAddressLine(0);
            // System.out.println(Address);
 
+            mylocation= new LatLng(location.getLatitude(),location.getLongitude());
            // Toast.makeText(getBaseContext(),"Value: "+Address,Toast.LENGTH_LONG).show();
         } catch (IOException e) {
             e.printStackTrace();
