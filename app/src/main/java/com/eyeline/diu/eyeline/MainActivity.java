@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -33,6 +36,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener,LocationListener{
+
+    DatabaseHelper mydb;
     private TextView txtSpeechInput;
     private ImageButton btnSpeak;
     private final int REQ_CODE_SPEECH_INPUT = 100;
@@ -57,6 +62,7 @@ public String Destination;
         setContentView(R.layout.activity_main);
         txtSpeechInput = (TextView) findViewById(R.id.txtSpeechInput);
         btnSpeak = (ImageButton) findViewById(R.id.btnSpeak);
+
 
         //Location...........................
         geocoder=new Geocoder(this);
@@ -121,7 +127,7 @@ public String Destination;
     @Override
     protected void onPause() {
         super.onPause();
-        googleApiClient.disconnect();
+       // googleApiClient.disconnect();
 
 
     }
@@ -159,6 +165,7 @@ public String Destination;
                                 break;
                             case "clear":
                                 request="clear";
+                                destination="";
                                 t1.speak("Ok All data are clear ..", TextToSpeech.QUEUE_FLUSH, null);
                                 break;
                             case "Travels":
@@ -280,13 +287,37 @@ public String Destination;
     public void onLocationChanged(Location location) {
 
         try {
+            //Log.d("Alldata","loc change");
+            //Toast.makeText(MainActivity.this, request.toString() ,Toast.LENGTH_SHORT).show();
             addressList=geocoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
+
             //Address.setText(addressList.get(0).getAddressLine(0));
             Address=addressList.get(0).getAddressLine(0);
            // System.out.println(Address);
 
             mylocation= new LatLng(location.getLatitude(),location.getLongitude());
            // Toast.makeText(getBaseContext(),"Value: "+Address,Toast.LENGTH_LONG).show();
+
+
+            if(request.equals("travel")){
+                Log.d("Alldata","loc change");
+               // mydb.getDatalive();
+                SQLiteDatabase sqLiteDatabase=mydb.getReadableDatabase();
+                Cursor cursor=mydb.getDatalive();
+           /*     if(cursor.moveToFirst()){
+                    do {
+
+                        Log.d("Alldata",cursor.getString(1));
+
+                    }
+
+                        while (cursor.moveToFirst());
+
+
+
+                }*/
+                Toast.makeText(MainActivity.this, String.valueOf(location.getLatitude()) ,Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

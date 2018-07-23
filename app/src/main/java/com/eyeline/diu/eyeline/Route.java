@@ -23,11 +23,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Route extends AppCompatActivity implements OnMapReadyCallback{
     private LatLng  mylocation;
     private LatLng mydestination;
      Context context;
+    List<RouteModel> routeModels;
+    DatabaseHelper myDb;
 
     RequestQueue rq;
     public Route(Context context,LatLng mylocation, LatLng mydestination) {
@@ -36,6 +41,7 @@ public class Route extends AppCompatActivity implements OnMapReadyCallback{
 
         Log.d("LocationUrl", "ok done");
         rq = Volley.newRequestQueue(context);
+        myDb=new DatabaseHelper(context);
          getroute();
 
     }
@@ -57,6 +63,8 @@ public class Route extends AppCompatActivity implements OnMapReadyCallback{
     }
 
     private void getroute() {
+
+routeModels=new ArrayList<>();
 
         try {
             Log.d("LocationUrl", String.valueOf(getMydestination().latitude));
@@ -96,10 +104,30 @@ public class Route extends AppCompatActivity implements OnMapReadyCallback{
                                     JSONObject list = new JSONObject(String.valueOf(stepPath.get(i)));
 
                                     String polygon = list.getString("html_instructions");
-                                    polyins_array[i] = polygon;
+                                    String lat=list.getJSONObject("end_location").getString("lat");
+                                    String lan=list.getJSONObject("end_location").getString("lng");
+                                    polygon=android.text.Html.fromHtml(polygon).toString();
+                                   // polyins_array[i] = polygon;
+                                    RouteModel route=new RouteModel(polygon,Double.valueOf(lat),Double.valueOf(lan));
+                                    routeModels.add(route);
 
-                                    Log.d("points", polygon);
+                                   // Log.d("points ", polygon+" lat "+lat.toString()+" lng "+lat.toString());
                                 }
+
+                                int i=0;
+                                for(RouteModel rt : routeModels){
+
+                                    Log.d("points ", "SL No "+String.valueOf(i)+" "+rt.getInstruction()+" lat "+String.valueOf(rt.getLat())+" lng "+String.valueOf(rt.getLng()));
+
+                                    boolean insertData=myDb.insertData(rt.getInstruction(),String.valueOf(rt.getLat()),String.valueOf(rt.getLng()));
+                                    if(insertData==true){
+                                        Log.d("points ","Data Insert");
+                                    }else {
+                                        Log.d("points ","Data Not Insert");
+                                    }
+                                    i++;
+                                }
+
 
 
                                 // Log.d("Location",contacts.toString());
