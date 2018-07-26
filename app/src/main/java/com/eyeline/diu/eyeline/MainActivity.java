@@ -31,6 +31,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -167,6 +168,8 @@ public String Destination;
                                 request="clear";
                                 destination="";
                                 t1.speak("Ok All data are clear ..", TextToSpeech.QUEUE_FLUSH, null);
+                                mydb=new DatabaseHelper(MainActivity.this);
+                                mydb.deleteall();
                                 break;
                             case "Travels":
                                 t1.speak("Please give your destination ..wait", TextToSpeech.QUEUE_FLUSH, null);
@@ -189,14 +192,19 @@ public String Destination;
                                     @Override
                                     public void run() {
                                         t1.speak("Please say", TextToSpeech.QUEUE_FLUSH, null);
+
                                         promptSpeechInput();
+
+
                                         request = "travel";
                                         Toast.makeText(getApplicationContext(), myText, Toast.LENGTH_SHORT).show();
+
 
                                     }
                                 }, 5000);
 
 
+                                myText.equals(null);
                                 break;
                             default:
                                 txtSpeechInput.setText(myText);
@@ -232,6 +240,7 @@ public String Destination;
                     else if (destination.equals("")){
 
                             destination=myText;
+                            PlaceSugesion placeSugesion=new PlaceSugesion(MainActivity.this,destination);
                             t1.speak("Your Destination is "+destination, TextToSpeech.QUEUE_FLUSH, null);
                             LatLng endloc=new LatLng(23.7568347,90.3800695);
                             Route route=new Route(MainActivity.this,mylocation,endloc);
@@ -282,8 +291,11 @@ public String Destination;
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-
+    Handler handler = new Handler();
+    String instructionp;
     @Override
+
+
     public void onLocationChanged(Location location) {
 
         try {
@@ -297,33 +309,101 @@ public String Destination;
 
             mylocation= new LatLng(location.getLatitude(),location.getLongitude());
            // Toast.makeText(getBaseContext(),"Value: "+Address,Toast.LENGTH_LONG).show();
+            mydb=new DatabaseHelper(MainActivity.this);
 
 
             if(request.equals("travel")){
                 Log.d("Alldata","loc change");
                // mydb.getDatalive();
-                SQLiteDatabase sqLiteDatabase=mydb.getReadableDatabase();
-                Cursor cursor=mydb.getDatalive();
-           /*     if(cursor.moveToFirst()){
-                    do {
 
-                        Log.d("Alldata",cursor.getString(1));
+                //SQLiteDatabase sqLiteDatabase=mydb.getReadableDatabase();
+                final Cursor cursor=mydb.getDatalive();
+                List posts = new ArrayList();
+                {
+                    Log.d("count", cursor.getCount() + " post rows");
 
+                    if (cursor.moveToFirst()) {
+                        do {
+
+                           // Log.d("count", String.valueOf(cursor.getString(2)));
+                            String steplat=cursor.getString(2);
+                            String steplng=cursor.getString(3);
+                            LatLng stepDestination=new LatLng(Double.parseDouble(steplat),Double.parseDouble(steplng));
+                            double stepdistance=getDistancestep(mylocation,stepDestination);
+                            Log.d("count", instructionp+String.valueOf(stepdistance));
+                            if(stepdistance<50){
+                                final String instruction=cursor.getString(1);
+                                final int drow=cursor.getInt(0);
+                                instructionp=instruction;
+
+                               // Log.d("count", instructionp+String.valueOf(stepdistance));
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        for(int i=0;i<1;i++) {
+                                            t1.speak("You Got An Instruction Now.............................. " + instructionp, TextToSpeech.QUEUE_FLUSH, null);
+                                            //  mydb.deleteRow(String.valueOf(cursor.getInt(0)));
+                                        }
+
+                                    }
+                                }, 5000);
+
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+
+                                        mydb.deleteRow(String.valueOf(drow));
+                                        instructionp="";
+
+
+
+
+                                    }
+
+
+                                }, 15000);
+
+
+
+
+                            }
+
+
+
+
+                        } while (cursor.moveToNext());
                     }
-
-                        while (cursor.moveToFirst());
-
-
-
-                }*/
-                Toast.makeText(MainActivity.this, String.valueOf(location.getLatitude()) ,Toast.LENGTH_SHORT).show();
+                    cursor.close();
+                }
+               // Toast.makeText(MainActivity.this, String.valueOf(location.getLatitude()) ,Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     //End Current Location........
+    public double getDistancestep( LatLng mylocation,LatLng steplocation) {
 
+
+
+        Location location1=new Location("LocationA");
+        location1.setLatitude(mylocation.latitude);
+        location1.setLongitude(mylocation.longitude);
+        Location location2=new Location("LocationB");
+        location2.setLatitude(steplocation.latitude);
+        location2.setLongitude(steplocation.longitude);
+        double distance =location1.distanceTo(location2);
+
+
+
+        DecimalFormat myFormatter = new DecimalFormat("0.00");
+        return distance;
+
+
+
+    }
 
 
 }

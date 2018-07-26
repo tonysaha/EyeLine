@@ -65,7 +65,7 @@ public class Route extends AppCompatActivity implements OnMapReadyCallback{
     private void getroute() {
 
 routeModels=new ArrayList<>();
-
+myDb.deleteall();
         try {
             Log.d("LocationUrl", String.valueOf(getMydestination().latitude));
             String endLat = String.valueOf(getMydestination().latitude);
@@ -119,7 +119,7 @@ routeModels=new ArrayList<>();
 
                                     Log.d("points ", "SL No "+String.valueOf(i)+" "+rt.getInstruction()+" lat "+String.valueOf(rt.getLat())+" lng "+String.valueOf(rt.getLng()));
 
-                                    boolean insertData=myDb.insertData(rt.getInstruction(),String.valueOf(rt.getLat()),String.valueOf(rt.getLng()));
+                                    boolean insertData=myDb.insertData(i,rt.getInstruction(),String.valueOf(rt.getLat()),String.valueOf(rt.getLng()));
                                     if(insertData==true){
                                         Log.d("points ","Data Insert");
                                     }else {

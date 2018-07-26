@@ -2,6 +2,7 @@ package com.eyeline.diu.eyeline;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -17,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
 
-        SQLiteDatabase db=this.getWritableDatabase();
+       // SQLiteDatabase db=this.getWritableDatabase();
 
     }
 
@@ -25,7 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         db.execSQL(" CREATE TABLE " + TABLE_NAME + " (" +
-                COL_1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_1 + " INTEGER PRIMARY KEY, " +
                 COL_2 + " TEXT , " +
                 COL_3 + " TEXT , " +
                 COL_4 + " TEXT );"
@@ -38,9 +39,10 @@ db.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME);
 onCreate(db);
     }
 
-    public boolean insertData(String instruction ,String latitude ,String longitude){
+    public boolean insertData(int sno,String instruction ,String latitude ,String longitude){
         SQLiteDatabase db=this.getWritableDatabase();
         ContentValues contentValues= new ContentValues();
+        contentValues.put(COL_1,sno);
         contentValues.put(COL_2,instruction);
         contentValues.put(COL_3,latitude);
         contentValues.put(COL_4,longitude);
@@ -61,5 +63,20 @@ onCreate(db);
     return result;
 
 
+    }
+
+    public void deleteall(){
+
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.delete(TABLE_NAME,null,null);
+        db.close();
+    }
+
+
+    public void deleteRow(String id){
+        SQLiteDatabase db=this.getWritableDatabase();
+
+        db.execSQL("DELETE FROM " + TABLE_NAME+ " WHERE "+COL_1+"='"+id+"'");
+        db.close();
     }
 }
