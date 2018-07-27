@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private LocationRequest locationRequest;
 
     private LatLng mylocation;
+    private List<String> sugessionList;
 
 
     TextToSpeech t1;
@@ -135,10 +136,12 @@ public String Destination;
 //End Location.........................
     String request="";
     String destination="";
+    String destinationNum="";
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Handler handler = new Handler();
+        final Handler handler = new Handler();
+
         switch (requestCode) {
             case REQ_CODE_SPEECH_INPUT: {
                 if (resultCode == RESULT_OK && null != data) {
@@ -146,6 +149,7 @@ public String Destination;
                     ArrayList<String> result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     final String myText = result.get(0);
+                    destinationNum=result.get(0);
 
 
                     if (myText.equals("clear")||!request.equals("travel")) {
@@ -237,13 +241,98 @@ public String Destination;
 
                         }
 
-                    else if (destination.equals("")){
+                    else if (destination.equals("") || myText!="change"){
 
-                            destination=myText;
-                            PlaceSugesion placeSugesion=new PlaceSugesion(MainActivity.this,destination);
-                            t1.speak("Your Destination is "+destination, TextToSpeech.QUEUE_FLUSH, null);
-                            LatLng endloc=new LatLng(23.7568347,90.3800695);
-                            Route route=new Route(MainActivity.this,mylocation,endloc);
+                            if (destination.equals("")&&myText!="0"&&myText!="1"&&myText!="2"&&myText!="3"&&myText!="4") {
+                                destination = myText;
+                                PlaceSugesion placeSugesion = new PlaceSugesion();
+                                //List<String> list=new ArrayList<>();
+
+
+                                List<String> list = new ArrayList<String>();
+
+                                list = placeSugesion.getSugession(MainActivity.this, destination);
+                          /*  handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    promptSpeechInput();
+                                    Log.d("getss", destinationNum);
+                                }
+                            },5000);*/
+
+                                final List<String> finalList = list;
+                                sugessionList=finalList;
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.d("PlaceUrl2", "okkkkkkkkkkkkk");
+
+                                        List<Address> address;
+                                        String first=finalList.get(1);
+
+
+
+
+
+                                        t1.speak("please  chose a number " , TextToSpeech.QUEUE_FLUSH, null);
+                                        while (t1.isSpeaking()){
+
+                                        }
+
+                                       // promptSpeechInput();
+
+
+                                    }
+                                },4000);
+
+                            }
+
+                            else if(myText.equals("0")||myText.equals("1")||myText.equals("2")||myText.equals("3")||myText.equals("4")) {
+                                t1.speak("Please wait a moment.......", TextToSpeech.QUEUE_FLUSH, null);
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        t1.speak("Your Final Destination is......"+sugessionList.get(Integer.valueOf(myText)), TextToSpeech.QUEUE_FLUSH, null);
+
+
+                                        destination=sugessionList.get(Integer.valueOf(myText));
+
+
+
+                                           // promptSpeechInput();
+                                        try {
+                                            String num=String.valueOf(destination);
+                                            Log.d("getss", num);
+                                            addressList=geocoder.getFromLocationName(destination,1);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                       double endlat= addressList.get(0).getLatitude();
+                                        double endlng=addressList.get(0).getLongitude();
+                                       // Log.d("getss", String.valueOf();
+
+
+                                        LatLng endloc=new LatLng(endlat,endlng);
+                                        Route route=new Route(MainActivity.this,mylocation,endloc);
+                                        request = "travel";
+                                        Toast.makeText(getApplicationContext(), myText, Toast.LENGTH_SHORT).show();
+
+
+                                    }
+                                }, 5000);
+                                myText.equals(null);
+                            }
+
+
+
+
+
+
+
+                        }
+                        else if(myText=="1"){
+                            String s="ok";
                         }
                         else{
                             t1.speak("Your Destination is "+destination, TextToSpeech.QUEUE_FLUSH, null);

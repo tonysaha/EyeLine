@@ -23,17 +23,28 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class PlaceSugesion extends AppCompatActivity {
+public class PlaceSugesion extends MainActivity {
     RequestQueue rqt;
     TextToSpeech tt1;
     private String text;
     private final int REQ_CODE_SPEECH_INPUT = 100;
     Context context;
+    Handler mHandler;
+    Runnable mRunnable;
 
-    public PlaceSugesion( Context context,String pram) {
+
+    public PlaceSugesion() {
+
+
+    }
+
+
+    public   List<String> getSugession(Context context,String pram){
         this.context=context;
+       final List<String> list=new ArrayList<String>();
         tt1=new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -58,8 +69,11 @@ public class PlaceSugesion extends AppCompatActivity {
             googlePlacesUrl.append("&key=" + "AIzaSyAowCbmyBSJtLUGn_FKoeGuVj4Sk_z5Rfw");
 
             String url = googlePlacesUrl.toString();
-           url=url.replace(" ",",");
+            url=url.replace(" ",",");
             Log.d("PlaceUrll", url);
+
+
+
 
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -72,36 +86,48 @@ public class PlaceSugesion extends AppCompatActivity {
 
 
 
-                           // Log.d("PlaceUrl", response.toString());
-                                Log.d("points", "ok");
-                                //JSONArray stepPath = response.getJSONArray("predictions");     // Log.d("points", stepPath.toString());
+                            // Log.d("PlaceUrl", response.toString());
+                            Log.d("points", "ok");
+                            //JSONArray stepPath = response.getJSONArray("predictions");     // Log.d("points", stepPath.toString());
+
                             try{
-                               JSONArray jsonArray=response.getJSONArray("predictions");
+                                JSONArray jsonArray=response.getJSONArray("predictions");
 
 
-                               for (int i=0;i<jsonArray.length();i++){
-                                   JSONObject sugOb=jsonArray.getJSONObject(i);
-                                   String giveSugesion=sugOb.getString("description");
+                                for (int i=0;i<jsonArray.length();i++){
+                                    JSONObject sugOb=jsonArray.getJSONObject(i);
+                                    String giveSugesion=sugOb.getString("description");
 
-                                   Log.d("PlaceUrl1", giveSugesion);
-                                   tt1.speak("Number "+i+" "+giveSugesion, TextToSpeech.QUEUE_FLUSH, null);
-                                   while (tt1.isSpeaking()){
-                                       Log.d("PlaceUrl2", "speek now");
-                                   }
-                                  // promptSpeechInput();
+                                    Log.d("PlaceUrl1", giveSugesion);
+                                    tt1.speak("Number "+i+" "+giveSugesion, TextToSpeech.QUEUE_FLUSH, null);
+                                    while (tt1.isSpeaking()){
+                                        //Log.d("PlaceUrl2", "speek now");
 
-                                   if (text=="yes"){
-                                       Log.d("Text",text);
-                                   }
-                               }
 
-                                //promptSpeechInput();
+                                    }
+                                    list.add(giveSugesion);
+
+                                    // promptSpeechInput();
+
+                                    if (text=="yes"){
+                                        Log.d("Text",text);
+                                    }
+
+                                }
+
+                                for (int i=0;i<list.size();i++){
+                                    Log.d("PlaceUrl2", list.size()+list.get(i));
+                                }
+
+
 
 
 
                             }catch (JSONException e){
                                 e.printStackTrace();
                             }
+
+
 
                         }
                     }, new Response.ErrorListener() {
@@ -112,54 +138,21 @@ public class PlaceSugesion extends AppCompatActivity {
                         }
                     });
             rqt.add(jsonObjectRequest);
+
+
         } catch (Exception e) {
             Log.d("points", e.toString());
 
 
         }
 
+        return list;
+    }
+
+    private void demo() {
+        Log.d("demo","demo");
     }
 
 
-    private void promptSpeechInput() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Yes Or No");
-        try {
-            text="";
-             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(context,
-                    getString(R.string.speech_not_supported),
-                    Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //Handler handler = new Handler();
-        String s="ok";
-        switch (requestCode) {
-            case REQ_CODE_SPEECH_INPUT: {
-                if (resultCode == RESULT_OK && null != data) {
-
-                    ArrayList<String> result = data
-                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    String mytext = result.get(0);
-
-                    if(mytext =="Yes"||mytext=="yes"){
-
-                        text="yes";
-
-                    }
-
-
-                }
-            }
-        }
-    }
 }
+

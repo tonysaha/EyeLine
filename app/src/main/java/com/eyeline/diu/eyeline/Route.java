@@ -143,6 +143,7 @@ myDb.deleteall();
                         }
                     });
             rq.add(jsonObjectRequest);
+            Log.d("points", "First check");
         } catch (Exception e) {
             Log.d("points", e.toString());
 
