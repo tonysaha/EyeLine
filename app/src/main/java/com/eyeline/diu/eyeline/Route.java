@@ -76,7 +76,7 @@ myDb.deleteall();
                     new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?");
             googlePlacesUrl.append("origin=").append(stLat).append(",").append(stLon);
             googlePlacesUrl.append("&destination=").append(endLat).append(",").append(endLon);
-
+            googlePlacesUrl.append("&mode=").append("walking");
             googlePlacesUrl.append("&key=" + "AIzaSyAowCbmyBSJtLUGn_FKoeGuVj4Sk_z5Rfw");
 
             String url = googlePlacesUrl.toString();

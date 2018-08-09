@@ -31,8 +31,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -210,6 +213,21 @@ public String Destination;
 
                                 myText.equals(null);
                                 break;
+                            case "bus":
+
+                                BusDetect busDetect=new BusDetect();
+
+                                break;
+                            case "time":
+
+                                DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy, HH:mm");
+                                String date = df.format(Calendar.getInstance().getTime());
+                                t1.speak(date, TextToSpeech.QUEUE_FLUSH, null);
+                                while (t1.isSpeaking()){
+
+                                }
+
+                                break;
                             default:
                                 txtSpeechInput.setText(myText);
 
@@ -267,8 +285,8 @@ public String Destination;
                                     public void run() {
                                         Log.d("PlaceUrl2", "okkkkkkkkkkkkk");
 
-                                        List<Address> address;
-                                        String first=finalList.get(1);
+                                       /* List<Address> address;
+                                        String first=finalList.get(1);*/
 
 
 
@@ -409,7 +427,7 @@ public String Destination;
                 final Cursor cursor=mydb.getDatalive();
                 List posts = new ArrayList();
                 {
-                    Log.d("count", cursor.getCount() + " post rows");
+               //     Log.d("count", cursor.getCount() + " post rows");
 
                     if (cursor.moveToFirst()) {
                         do {
