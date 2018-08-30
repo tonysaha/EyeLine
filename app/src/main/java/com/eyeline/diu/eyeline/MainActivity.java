@@ -215,7 +215,7 @@ public String Destination;
                                 break;
                             case "bus":
 
-                                BusDetect busDetect=new BusDetect();
+                                BusDetect busDetect=new BusDetect(MainActivity.this,mylocation);
 
                                 break;
                             case "time":
